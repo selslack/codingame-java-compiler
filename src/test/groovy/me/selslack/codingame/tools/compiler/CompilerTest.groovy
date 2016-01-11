@@ -5,7 +5,7 @@ import spock.lang.*
 
 @Stepwise
 class CompilerTest extends Specification {
-    def static result
+    @Shared result
 
     def setupSpec() {
         result = [
