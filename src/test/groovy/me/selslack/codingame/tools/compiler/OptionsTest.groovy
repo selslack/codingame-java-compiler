@@ -10,7 +10,7 @@ class OptionsTest extends Specification {
 
         expect:
         options.playerClass == player
-        options.sources == sources as File[]
+        options.sources.toJavaArray() == sources as File[]
         options.out == (out ? new File(out) : null)
         options.showHelp == help
 

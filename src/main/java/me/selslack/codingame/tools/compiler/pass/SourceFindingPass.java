@@ -1,27 +1,31 @@
 package me.selslack.codingame.tools.compiler.pass;
 
-import org.apache.commons.io.FileUtils;
+import javaslang.collection.List;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.nio.file.Files;
 
-public class SourceFindingPass implements CompilerPass<List<File>, List<File>> {
+public class SourceFindingPass implements CompilerPass<Void, List<File>> {
+    private final List<File> sources;
+
+    public SourceFindingPass(List<File> sources) {
+        this.sources = sources;
+    }
+
     @Override
-    public List<File> process(List<File> input) throws Exception {
-        Set<File> result = new HashSet<>();
+    public List<File> process(Void input) throws Exception {
+        List<File> result = List.empty();
 
-        for (File file : input) {
-            if (file.isDirectory()) {
-                result.addAll(FileUtils.listFiles(file, new String[] { "java" }, true));
-            }
-            else {
-                result.add(file);
-            }
+        for (File source : sources) {
+            List<File> files = Files.walk(source.toPath())
+                .filter(p -> Files.isRegularFile(p))
+                .filter(p -> p.toString().endsWith(".java"))
+                .map(p -> p.toFile())
+                .collect(List.collector());
+
+            result = result.appendAll(files);
         }
 
-        return result.stream().sorted().collect(Collectors.toList());
+        return result;
     }
 }

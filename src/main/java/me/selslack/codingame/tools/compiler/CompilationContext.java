@@ -1,30 +1,28 @@
 package me.selslack.codingame.tools.compiler;
 
-import com.github.javaparser.ast.body.TypeDeclaration;
-import javaslang.collection.HashSet;
+import javaslang.collection.Map;
 import javaslang.collection.Set;
-
-import java.util.List;
-import java.util.Optional;
+import javaslang.collection.Stream;
 
 public class CompilationContext {
-    private Optional<TypeDeclaration> solutionClass = Optional.empty();
+    private final Set<Type> types;
+    private final Type solutionClass;
+    private Map<Type, Set<?>> dependencies;
 
-    final private Set<TypeDeclaration> types;
-
-    public CompilationContext(List<TypeDeclaration> types) {
-        this.types = HashSet.ofAll(types);
+    public CompilationContext(Set<Type> types, Type solutionClass) {
+        this.types = types;
+        this.solutionClass = solutionClass;
     }
 
-    public Optional<TypeDeclaration> getSolutionClass() {
+    public Type getSolutionClass() {
         return solutionClass;
     }
 
-    public void setSolutionClass(TypeDeclaration solutionClass) {
-        this.solutionClass = Optional.of(solutionClass);
+    public Set<Type> getTypes() {
+        return types;
     }
 
-    public Set<TypeDeclaration> getTypes() {
-        return types;
+    public Stream<Type> getTypesStream() {
+        return types.toStream();
     }
 }

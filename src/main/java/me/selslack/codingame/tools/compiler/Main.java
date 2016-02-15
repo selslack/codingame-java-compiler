@@ -1,20 +1,9 @@
 package me.selslack.codingame.tools.compiler;
 
-import me.selslack.codingame.tools.compiler.pass.*;
-
 public class Main {
     static public void main(String[] args) {
         try {
-            Options options = Options.from(args);
-
-            CompilerPass
-                .processing(new SourceFindingPass())
-                .thenProcessing(new SourceParsingPass())
-                .thenProcessing(new TypeExtractingPass())
-                .thenProcessing(new ContextCreatingPass())
-                .thenProcessing(new SolutionLocatingPass(options.playerClass))
-                .thenProcessing(new ResultExportingPass(options.out))
-                .process(options.sources);
+            new Compiler(Options.from(args)).compile();
         }
         catch (OptionsParsingException e) {
             Throwable cause = e.getCause();

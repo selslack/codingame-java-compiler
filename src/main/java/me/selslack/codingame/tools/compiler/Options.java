@@ -1,5 +1,6 @@
 package me.selslack.codingame.tools.compiler;
 
+import javaslang.collection.List;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -7,8 +8,6 @@ import joptsimple.OptionSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
 
 public class Options {
     static final private OptionParser parser = new OptionParser();
@@ -28,7 +27,7 @@ public class Options {
             File       out   = (File) parsed.valueOf("out");
 
             @SuppressWarnings("unchecked")
-            List<File> paths = (List<File>) parsed.valuesOf("source");
+            List<File> paths = List.ofAll((java.util.List<File>) parsed.valuesOf("source"));
 
             return new Options(paths, fqcn, out, parsed.has("help"));
         }
@@ -56,7 +55,7 @@ public class Options {
     final public boolean showHelp;
 
     private Options(List<File> sources, String playerClass, File out, boolean showHelp) {
-        this.sources = Collections.unmodifiableList(sources);
+        this.sources = sources;
         this.playerClass = playerClass;
         this.out = out;
         this.showHelp = showHelp;

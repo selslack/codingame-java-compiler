@@ -1,81 +1,55 @@
 package me.selslack.codingame.tools.compiler
 
-import me.selslack.codingame.tools.compiler.pass.*
 import spock.lang.*
 
-@Stepwise
 class CompilerTest extends Specification {
-    @Shared result
-
-    def setupSpec() {
-        result = [
-            new File(CompilerTest.getResource("simple/").toURI()),
-            new File(CompilerTest.getResource("simple/Player.java").toURI()),
-        ]
-    }
-
-    def "Source finding pass"() {
+    @Unroll
+    def "compile unsupported feature from #sources"() {
         given:
-        def pass = new SourceFindingPass()
+        def compiler = new Compiler(mapResourceToFile(sources), solutionClass, new FileWriter(out))
 
         when:
-        //noinspection GroovyAssignabilityCheck
-        result = pass.process(result)
+        compiler.compile()
 
         then:
-        result.size() == 4
-        result[0].toString().endsWith("/Player.java")
-        result[1].toString().endsWith("/Utils.java")
-        result[2].toString().endsWith("/pkg/Library.java")
-        result[3].toString().endsWith("/unused/Source.java")
+        thrown(CompilationFeatureException)
+
+        where:
+        sources                                   | solutionClass | out
+        ["projects/unsupported-static-import"]    | "Main"        | "/dev/null"
+        ["projects/unsupported-asterisk-import"]  | "Main"        | "/dev/null"
+        ["projects/unsupported-inner-class"]      | "Main"        | "/dev/null"
+        ["projects/unsupported-local-class"]      | "Main"        | "/dev/null"
+        ["projects/unsupported-equal-class-name"] | "Main"        | "/dev/null"
     }
 
-    def "Source parsing pass"() {
+    @Unroll
+    def "compile from #sources"() {
         given:
-        def pass = new SourceParsingPass()
+        def compiler = new Compiler(mapResourceToFile(sources), solutionClass, new FileWriter(out))
 
         when:
-        //noinspection GroovyAssignabilityCheck
-        result = pass.process(result)
+        compiler.compile()
 
         then:
-        result.size() == 4
+        notThrown(Exception)
+
+        where:
+        sources                | solutionClass | out
+        ["projects/basic/src"] | ".Solution"   | "/dev/null"
     }
 
-    def "Type extracting pass"() {
-        given:
-        def pass = new TypeExtractingPass()
+    def mapResourceToFile(String resource) {
+        URL result = getClass().classLoader.getResource(resource)
 
-        when:
-        //noinspection GroovyAssignabilityCheck
-        result = pass.process(result)
+        if (!result) {
+            throw new RuntimeException("Resource path '$resource' not found")
+        }
 
-        then:
-        result.size() == 1
+        new File(result.file)
     }
 
-    def "Context creating pass"() {
-        given:
-        def pass = new ContextCreatingPass()
-
-        when:
-        //noinspection GroovyAssignabilityCheck
-        result = pass.process(result)
-
-        then:
-        true
-    }
-
-    def "Solution locating pass"() {
-        given:
-        def pass = new SolutionLocatingPass(".Player")
-
-        when:
-        //noinspection GroovyAssignabilityCheck
-        result = pass.process(result)
-
-        then:
-        result.solutionClass.isPresent()
-        result.solutionClass.get().name == "Player"
+    def mapResourceToFile(Collection<String> resource) {
+        resource.collect { f -> mapResourceToFile(f) } as File[]
     }
 }
