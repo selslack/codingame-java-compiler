@@ -1,5 +1,6 @@
 package me.selslack.codingame.tools.compiler
 
+import com.github.javaparser.JavaParser
 import spock.lang.*
 
 class CompilerTest extends Specification {
@@ -26,17 +27,18 @@ class CompilerTest extends Specification {
     @Unroll
     def "compile from #sources"() {
         given:
-        def compiler = new Compiler(mapResourceToFile(sources), solutionClass, new FileWriter(out))
+        def output = new StringWriter(1024)
+        def compiler = new Compiler(mapResourceToFile(sources), solutionClass, output)
 
         when:
         compiler.compile()
 
         then:
-        notThrown(Exception)
+        sourceToUnit(output.toString()) == sourceToUnit(mapResourceToFile(expected))
 
         where:
-        sources                | solutionClass | out
-        ["projects/basic/src"] | ".Solution"   | "/dev/null"
+        sources                | solutionClass | expected
+        ["projects/basic/src"] | ".Solution"   | "projects/basic/output/Result.java"
     }
 
     def mapResourceToFile(String resource) {
@@ -51,5 +53,13 @@ class CompilerTest extends Specification {
 
     def mapResourceToFile(Collection<String> resource) {
         resource.collect { f -> mapResourceToFile(f) } as File[]
+    }
+
+    def sourceToUnit(String source) {
+        JavaParser.parse(new StringReader(source), true)
+    }
+
+    def sourceToUnit(File source) {
+        JavaParser.parse(source)
     }
 }
