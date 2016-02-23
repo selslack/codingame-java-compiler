@@ -33,6 +33,7 @@ public class Compiler {
             .thenProcessing(new FeatureCheckingPass())
             .thenProcessing(new ContextCreatingPass(solutionClass))
             .thenProcessing(new DependencySolvingPass())
+            .thenProcessing(new OutputWritingPass(out))
             .process(null)
         ;
     }

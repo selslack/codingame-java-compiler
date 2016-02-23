@@ -10,6 +10,6 @@ public class DependencySolvingPass implements CompilerPass<CompilationContext, C
 
         }
 
-        return null;
+        return input;
     }
 }

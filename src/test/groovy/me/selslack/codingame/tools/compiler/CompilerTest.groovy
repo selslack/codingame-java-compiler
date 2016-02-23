@@ -1,6 +1,7 @@
 package me.selslack.codingame.tools.compiler
 
 import com.github.javaparser.JavaParser
+import com.github.javaparser.ast.CompilationUnit
 import spock.lang.*
 
 class CompilerTest extends Specification {
@@ -34,7 +35,10 @@ class CompilerTest extends Specification {
         compiler.compile()
 
         then:
-        sourceToUnit(output.toString()) == sourceToUnit(mapResourceToFile(expected))
+        assertCompilationUnitsEquals(
+            sourceToUnit(mapResourceToFile(expected)),
+            sourceToUnit(output.toString())
+        )
 
         where:
         sources                | solutionClass | expected
@@ -61,5 +65,14 @@ class CompilerTest extends Specification {
 
     def sourceToUnit(File source) {
         JavaParser.parse(source)
+    }
+
+    def assertCompilationUnitsEquals(CompilationUnit expected, CompilationUnit result) {
+        def expectedSource = expected.toString()
+        def resultSource = result.toString()
+
+        assert expectedSource == resultSource
+
+        true
     }
 }
