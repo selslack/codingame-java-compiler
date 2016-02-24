@@ -13,7 +13,6 @@ public class Options {
     static final private OptionParser parser = new OptionParser();
 
     static {
-        parser.accepts("player", "Player FQCN").withRequiredArg().required();
         parser.accepts("out", "Compilation output path").withRequiredArg().required().ofType(File.class);
         parser.accepts("source").withRequiredArg().required().ofType(File.class);
         parser.accepts("help", "Show this help message").forHelp();
@@ -21,15 +20,13 @@ public class Options {
 
     public static Options from(String... args) throws OptionsParsingException {
         try {
-            OptionSet parsed = parser.parse(args);
-
-            String     fqcn  = (String) parsed.valueOf("player");
-            File       out   = (File) parsed.valueOf("out");
+            OptionSet  parsed = parser.parse(args);
+            File       out    = (File) parsed.valueOf("out");
 
             @SuppressWarnings("unchecked")
             List<File> paths = List.ofAll((java.util.List<File>) parsed.valuesOf("source"));
 
-            return new Options(paths, fqcn, out, parsed.has("help"));
+            return new Options(paths, out, parsed.has("help"));
         }
         catch (OptionException e) {
             throw new OptionsParsingException(e);
@@ -50,13 +47,11 @@ public class Options {
     }
 
     final public List<File> sources;
-    final public String playerClass;
     final public File out;
     final public boolean showHelp;
 
-    private Options(List<File> sources, String playerClass, File out, boolean showHelp) {
+    private Options(List<File> sources, File out, boolean showHelp) {
         this.sources = sources;
-        this.playerClass = playerClass;
         this.out = out;
         this.showHelp = showHelp;
     }

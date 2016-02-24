@@ -17,7 +17,7 @@ public class OutputWritingPass implements CompilerPass<CompilationContext, Void>
 
     @Override
     public Void process(CompilationContext input) throws Exception {
-        Type type = input.getSolutionClass();
+        Type type = input.getSolution();
         TypeDeclaration declaration = type.getBody();
 
         declaration.setModifiers(
@@ -25,10 +25,10 @@ public class OutputWritingPass implements CompilerPass<CompilationContext, Void>
         );
 
         for (ImportDeclaration imp : type.getImports()) {
-            writer.write(imp.toString());
+            writer.write(imp.toStringWithoutComments());
         }
 
-        writer.write(declaration.toString());
+        writer.write(declaration.toStringWithoutComments());
         writer.flush();
 
         return null;

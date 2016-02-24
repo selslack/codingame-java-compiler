@@ -9,14 +9,13 @@ class OptionsTest extends Specification {
         def options = Options.from(input as String[])
 
         expect:
-        options.playerClass == player
         options.sources.toJavaArray() == sources as File[]
         options.out == (out ? new File(out) : null)
         options.showHelp == help
 
         where:
-        input                                                               | player               | sources  | out         | help
-        ["--player=me.selslack.Player", "--source=/tmp", "--out=/dev/null"] | "me.selslack.Player" | ["/tmp"] | "/dev/null" | false
-        ["--help"]                                                          | null                 | []       | null        | true
+        input                                                               | sources  | out         | help
+        ["--player=me.selslack.Player", "--source=/tmp", "--out=/dev/null"] | ["/tmp"] | "/dev/null" | false
+        ["--help"]                                                          | []       | null        | true
     }
 }

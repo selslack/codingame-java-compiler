@@ -4,6 +4,7 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.comments.Comment;
 import javaslang.collection.List;
 
 import java.util.Objects;
@@ -77,6 +78,21 @@ public class Type {
 
     public boolean isClass() {
         return !isAnnotation() && !isEnum() && !isInterface();
+    }
+
+    public boolean isSolution() {
+        Comment comment = body.getComment();
+
+        if (comment == null) {
+            return false;
+        }
+        else {
+            return isPublic() && !isAbstract() && comment.getContent().contains("@solution");
+        }
+    }
+
+    public String getPackageName() {
+        return pkg.map(v -> v.getName().toStringWithoutComments()).orElse("");
     }
 
     public String getName() {

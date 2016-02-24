@@ -1,28 +1,33 @@
 package me.selslack.codingame.tools.compiler;
 
+import javaslang.collection.HashMap;
 import javaslang.collection.Map;
 import javaslang.collection.Set;
-import javaslang.collection.Stream;
+
+import java.util.function.Function;
 
 public class CompilationContext {
     private final Set<Type> types;
-    private final Type solutionClass;
-    private Map<Type, Set<?>> dependencies;
+    private final Map<String, Type> byFqcn;
+    private final Map<String, ? extends Set<Type>> byPackage;
+    private final Type solution;
 
-    public CompilationContext(Set<Type> types, Type solutionClass) {
+    public CompilationContext(Set<Type> types) {
         this.types = types;
-        this.solutionClass = solutionClass;
-    }
-
-    public Type getSolutionClass() {
-        return solutionClass;
+        this.byFqcn = HashMap.empty();
+        this.byPackage = types.groupBy(t -> t.getPackageName());
+        this.solution = types.find(t -> t.isSolution()).get();
     }
 
     public Set<Type> getTypes() {
         return types;
     }
 
-    public Stream<Type> getTypesStream() {
-        return types.toStream();
+    public Type getSolution() {
+        return solution;
+    }
+
+    public CompilationContext map(Function<Type, Type> mapper) {
+        return new CompilationContext(types.map(mapper));
     }
 }

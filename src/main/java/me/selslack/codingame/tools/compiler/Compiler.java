@@ -10,28 +10,26 @@ import java.io.Writer;
 
 public class Compiler {
     private final List<File> sources;
-    private final String solutionClass;
     private final Writer out;
 
-    public Compiler(List<File> sources, String solutionClass, Writer out) {
+    public Compiler(List<File> sources, Writer out) {
         this.sources = sources;
-        this.solutionClass = solutionClass;
         this.out = out;
     }
 
-    public Compiler(File[] sources, String solutionClass, Writer out) {
-        this(List.of(sources), solutionClass, out);
+    public Compiler(File[] sources, Writer out) {
+        this(List.of(sources), out);
     }
 
     public Compiler(Options options) throws IOException {
-        this(options.sources, options.playerClass, new FileWriter(options.out));
+        this(options.sources, new FileWriter(options.out));
     }
 
     public void compile() throws Exception {
         CompilerPass.processing(new SourceFindingPass(sources))
             .thenProcessing(new SourceParsingPass())
             .thenProcessing(new FeatureCheckingPass())
-            .thenProcessing(new ContextCreatingPass(solutionClass))
+            .thenProcessing(new ContextCreatingPass())
             .thenProcessing(new DependencySolvingPass())
             .thenProcessing(new OutputWritingPass(out))
             .process(null)

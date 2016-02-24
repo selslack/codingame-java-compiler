@@ -7,6 +7,7 @@ import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import javaslang.Tuple2;
 import javaslang.collection.List;
 import javaslang.collection.Set;
+import me.selslack.codingame.tools.compiler.CompilationException;
 import me.selslack.codingame.tools.compiler.CompilationFeatureException;
 import me.selslack.codingame.tools.compiler.Type;
 
@@ -15,6 +16,8 @@ import java.util.Optional;
 public class FeatureCheckingPass implements CompilerPass<Set<Type>, Set<Type>> {
     @Override
     public Set<Type> process(final Set<Type> input) throws Exception {
+        Optional<Type> solution = Optional.empty();
+
         for (final Type type : input) {
             final List<Type> inner = type.getInnerTypes();
             final Optional<ClassOrInterfaceDeclaration> local = Optional.ofNullable(
@@ -38,6 +41,19 @@ public class FeatureCheckingPass implements CompilerPass<Set<Type>, Set<Type>> {
             if (local.isPresent()) {
                 throw new CompilationFeatureException("local class", type, local.get().getBeginLine());
             }
+
+            if (type.isSolution()) {
+                if (solution.isPresent()) {
+                    throw new CompilationFeatureException("ambiguous solution", solution.get(), solution.get().getBody().getBeginLine());
+                }
+                else {
+                    solution = Optional.of(type);
+                }
+            }
+        }
+
+        if (!solution.isPresent()) {
+            throw new CompilationException("Solution class wasn't found. Please mark any public non-abstract class with @solution Javadoc tag.");
         }
 
         for (final Tuple2<String, ? extends Set<Type>> grouped : input.groupBy(t -> t.getName())) {
@@ -45,6 +61,14 @@ public class FeatureCheckingPass implements CompilerPass<Set<Type>, Set<Type>> {
 
             if (grouped._2.size() > 1) {
                 throw new CompilationFeatureException("equal class name", head, head.getBody().getBeginLine());
+            }
+        }
+
+        for (final Tuple2<String, ? extends Set<Type>> grouped : input.groupBy(t -> t.getFullName())) {
+            final Type head = grouped._2.head();
+
+            if (grouped._2.size() > 1) {
+                throw new CompilationFeatureException("equal fqcn", head, head.getBody().getBeginLine());
             }
         }
 
