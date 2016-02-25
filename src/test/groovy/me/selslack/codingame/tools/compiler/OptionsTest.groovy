@@ -14,8 +14,8 @@ class OptionsTest extends Specification {
         options.showHelp == help
 
         where:
-        input                                                               | sources  | out         | help
-        ["--player=me.selslack.Player", "--source=/tmp", "--out=/dev/null"] | ["/tmp"] | "/dev/null" | false
-        ["--help"]                                                          | []       | null        | true
+        input                                | sources  | out         | help
+        ["--source=/tmp", "--out=/dev/null"] | ["/tmp"] | "/dev/null" | false
+        ["--help"]                           | []       | null        | true
     }
 }
