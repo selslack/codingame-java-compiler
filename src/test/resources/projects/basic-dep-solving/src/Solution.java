@@ -1,11 +1,13 @@
-import java.lang.System;
-import java.lang.String;
+package me.selslack.codingame.basic;
+
+import me.selslack.codingame.basic.pkg.Dep;
+
 import java.util.Scanner;
 
 /**
  * @solution
  */
-class Solution {
+public class Solution {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
         int N = in.nextInt();
@@ -22,6 +24,6 @@ class Solution {
             String FNAME = in.nextLine();
         }
 
-        System.out.println("UNKNOWN");
+        System.out.println(Dep.isGood());
     }
 }

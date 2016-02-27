@@ -41,8 +41,9 @@ class CompilerTest extends Specification {
         )
 
         where:
-        sources                | expected
-        ["projects/basic/src"] | "projects/basic/output/Result.java"
+        sources                            | expected
+        ["projects/basic/src"]             | "projects/basic/output/Result.java"
+        ["projects/basic-dep-solving/src"] | "projects/basic-dep-solving/output/Result.java"
     }
 
     def mapResourceToFile(String resource) {
@@ -71,7 +72,7 @@ class CompilerTest extends Specification {
         def expectedSource = expected.toString()
         def resultSource = result.toString()
 
-        assert expectedSource == resultSource
+        assert resultSource == expectedSource
 
         true
     }

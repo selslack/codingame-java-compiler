@@ -14,22 +14,24 @@ public class Type {
     private final Optional<PackageDeclaration> pkg;
     private final List<ImportDeclaration> imports;
     private final TypeDeclaration body;
+    private final String unitId;
     private final Optional<Type> parent;
 
-    public Type(Optional<PackageDeclaration> pkg, List<ImportDeclaration> imports, TypeDeclaration body) {
+    public Type(Optional<PackageDeclaration> pkg, List<ImportDeclaration> imports, TypeDeclaration body, String unitId) {
         this.pkg = pkg;
         this.imports = imports;
         this.body = body;
+        this.unitId = unitId;
         this.parent = Optional.empty();
     }
 
-    public Type(Optional<PackageDeclaration> pkg, java.util.List<ImportDeclaration> imports, TypeDeclaration body) {
-        this(pkg, List.ofAll(imports), body);
+    public Type(Optional<PackageDeclaration> pkg, java.util.List<ImportDeclaration> imports, TypeDeclaration body, String unitId) {
+        this(pkg, List.ofAll(imports), body, unitId);
     }
 
     public Optional<PackageDeclaration> getPackage() {
         if (pkg.isPresent()) {
-            return Optional.of((PackageDeclaration) pkg.get().clone());
+            return Optional.of((PackageDeclaration) pkg.get().accept(new CloneVisitor(), null));
         }
         else {
             return pkg;
@@ -37,11 +39,15 @@ public class Type {
     }
 
     public List<ImportDeclaration> getImports() {
-        return imports.map(i -> (ImportDeclaration) i.clone());
+        return imports.map(i -> (ImportDeclaration) i.accept(new CloneVisitor(), null));
     }
 
     public TypeDeclaration getBody() {
-        return (TypeDeclaration) body.clone();
+        return (TypeDeclaration) body.accept(new CloneVisitor(), null);
+    }
+
+    public String getUnitId() {
+        return unitId;
     }
 
     public boolean isAbstract() {
@@ -112,7 +118,7 @@ public class Type {
         }
 
         if (pkg.isPresent()) {
-            result = result.prepend(pkg.get().toStringWithoutComments());
+            result = result.prepend(pkg.get().getName().toStringWithoutComments());
         }
 
         return result.mkString(".");
@@ -123,7 +129,7 @@ public class Type {
 
         for (BodyDeclaration declaration : body.getMembers()) {
             if (declaration instanceof ClassOrInterfaceDeclaration || declaration instanceof EnumDeclaration) {
-                result = result.prepend(new Type(pkg, imports, (TypeDeclaration) declaration));
+                result = result.prepend(new Type(pkg, imports, (TypeDeclaration) declaration, unitId));
             }
         }
 

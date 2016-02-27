@@ -1,7 +1,10 @@
-package me.selslack.codingame.tools.compiler;
-
+import java.lang.System;
+import java.lang.String;
 import java.util.Scanner;
 
+/**
+ * @solution
+ */
 class Solution {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
@@ -19,6 +22,18 @@ class Solution {
             String FNAME = in.nextLine();
         }
 
-        System.out.println("UNKNOWN");
+        System.out.println(Dep.isGood());
+    }
+}
+
+class Dep {
+    public static boolean isGood() {
+        return Utils.isGood();
+    }
+}
+
+class Utils {
+    public static boolean isGood() {
+        return true;
     }
 }
