@@ -69,9 +69,17 @@ class CompilerTest extends Specification {
         JavaParser.parse(source)
     }
 
+    def unitToString(CompilationUnit unit) {
+        def dumper = new DumpVisitor(false)
+
+        unit.accept(dumper, null)
+
+        return dumper.getSource()
+    }
+
     def assertCompilationUnitsEquals(CompilationUnit expected, CompilationUnit result) {
-        def expectedSource = expected.toString()
-        def resultSource = result.toString()
+        def expectedSource = unitToString(expected)
+        def resultSource = unitToString(result)
 
         assert resultSource == expectedSource
 

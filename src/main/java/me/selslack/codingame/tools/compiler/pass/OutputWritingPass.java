@@ -7,7 +7,6 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ModifierSet;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.QualifiedNameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import javaslang.Tuple2;
@@ -15,6 +14,7 @@ import javaslang.collection.HashSet;
 import javaslang.collection.Set;
 import javaslang.collection.Stack;
 import me.selslack.codingame.tools.compiler.CompilationContext;
+import me.selslack.codingame.tools.compiler.DumpVisitor;
 import me.selslack.codingame.tools.compiler.Type;
 
 import java.io.IOException;
@@ -34,6 +34,7 @@ public class OutputWritingPass implements CompilerPass<CompilationContext, Void>
     public Void process(CompilationContext input) throws Exception {
         Stack<Type> queue = Stack.of(input.getSolution());
         Set<Type> visited = HashSet.empty();
+        DumpVisitor dumper = new DumpVisitor(false);
 
         while (!queue.isEmpty()) {
             Tuple2<Type, ? extends Stack<Type>> result = queue.pop2();
@@ -48,7 +49,9 @@ public class OutputWritingPass implements CompilerPass<CompilationContext, Void>
             visited = visited.add(result._1);
         }
 
-        writer.write(unit.toStringWithoutComments());
+        unit.accept(dumper, null);
+
+        writer.write(dumper.getSource());
         writer.flush();
 
         return null;

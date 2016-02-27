@@ -23,7 +23,13 @@ class Solution {
         }
 
         System.out.println(Dep.isGood());
+        System.out.println(Enum.A);
     }
+}
+
+enum Enum {
+    A,
+    B
 }
 
 class Dep {

@@ -1,6 +1,7 @@
 package me.selslack.codingame.basic;
 
 import me.selslack.codingame.basic.pkg.Dep;
+import me.selslack.codingame.basic.pkg.Enum;
 
 import java.util.Scanner;
 
@@ -25,5 +26,6 @@ public class Solution {
         }
 
         System.out.println(Dep.isGood());
+        System.out.println(Enum.A);
     }
 }
