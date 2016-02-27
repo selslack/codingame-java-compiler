@@ -1607,7 +1607,7 @@ public class DumpVisitor implements VoidVisitor<Object> {
         }
 
         printer.print("::");
-        if (n.getTypeParameters() != null) {
+        if (!isNullOrEmpty(n.getTypeParameters())) {
             printer.print("<");
             for (Iterator<TypeParameter> i = n.getTypeParameters().iterator(); i
                 .hasNext();) {
