@@ -29,6 +29,17 @@ public class CompilationContext {
         return byFqcn.get(fqcn).toJavaOptional();
     }
 
+    public Optional<Set<Type>> getByPackage(String pkg) {
+        Optional<? extends Set<Type>> types = byPackage.get(pkg).toJavaOptional();
+
+        if (types.isPresent()) {
+            return Optional.of(types.get());
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
     public Type getSolution() {
         return solution;
     }

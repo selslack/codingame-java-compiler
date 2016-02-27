@@ -44,6 +44,7 @@ class CompilerTest extends Specification {
         sources                            | expected
         ["projects/basic/src"]             | "projects/basic/output/Result.java"
         ["projects/basic-dep-solving/src"] | "projects/basic-dep-solving/output/Result.java"
+        ["projects/dep-same-pkg/src"]      | "projects/dep-same-pkg/output/Result.java"
     }
 
     def mapResourceToFile(String resource) {

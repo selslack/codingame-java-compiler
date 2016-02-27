@@ -8,14 +8,13 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.ReferenceType;
-import com.github.javaparser.ast.type.WildcardType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import javaslang.collection.Stack;
 import me.selslack.codingame.tools.compiler.CompilationContext;
 import me.selslack.codingame.tools.compiler.Type;
 import me.selslack.codingame.tools.compiler.dependency.CompositeSolver;
 import me.selslack.codingame.tools.compiler.dependency.JavaLangSolver;
+import me.selslack.codingame.tools.compiler.dependency.PackageSolver;
 import me.selslack.codingame.tools.compiler.dependency.SimpleImportSolver;
 import me.selslack.codingame.tools.compiler.dependency.Solver;
 
@@ -24,12 +23,13 @@ import java.util.Optional;
 public class DependencySolvingPass implements CompilerPass<CompilationContext, CompilationContext> {
     @Override
     public CompilationContext process(CompilationContext input) throws Exception {
-        return input.map(t -> process(t));
+        return input.map(t -> process(t, input));
     }
 
-    private Type process(Type type) {
+    private Type process(Type type, CompilationContext input) {
         Solver solver = new CompositeSolver(
             new SimpleImportSolver(type),
+            new PackageSolver(type.getPackageName(), input),
             new JavaLangSolver()
         );
 
