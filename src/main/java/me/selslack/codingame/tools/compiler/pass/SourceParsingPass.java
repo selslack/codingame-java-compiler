@@ -1,6 +1,7 @@
 package me.selslack.codingame.tools.compiler.pass;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.PackageDeclaration;
@@ -19,12 +20,17 @@ public class SourceParsingPass implements CompilerPass<List<File>, Set<Type>> {
         Set<Type> context = HashSet.empty();
 
         for (File source : input) {
-            CompilationUnit unit = JavaParser.parse(source);
-            PackageDeclaration pkg = unit.getPackage();
-            List<ImportDeclaration> imports = List.ofAll(unit.getImports());
+            try {
+                CompilationUnit unit = JavaParser.parse(source);
+                PackageDeclaration pkg = unit.getPackage();
+                List<ImportDeclaration> imports = List.ofAll(unit.getImports());
 
-            for (TypeDeclaration type : unit.getTypes()) {
-                context = context.add(new Type(Optional.ofNullable(pkg), imports, type, source.getAbsolutePath()));
+                for (TypeDeclaration type : unit.getTypes()) {
+                    context = context.add(new Type(Optional.ofNullable(pkg), imports, type, source.getAbsolutePath()));
+                }
+            }
+            catch (ParseException e) {
+                throw new RuntimeException(String.format("Can not parse %s", source.getAbsolutePath()), e);
             }
         }
 
