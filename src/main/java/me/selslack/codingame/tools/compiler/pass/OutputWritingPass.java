@@ -19,6 +19,7 @@ import me.selslack.codingame.tools.compiler.Type;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Optional;
 
 public class OutputWritingPass implements CompilerPass<CompilationContext, Void> {
@@ -69,7 +70,18 @@ public class OutputWritingPass implements CompilerPass<CompilationContext, Void>
 
         for (String dependency : visitor.getTypes()) {
             if (dependency.startsWith("java.")) {
-                unit.getImports().add(new ImportDeclaration(ASTHelper.createNameExpr(dependency), false, false));
+                List<ImportDeclaration> imports = unit.getImports();
+                ImportDeclaration imp = new ImportDeclaration(ASTHelper.createNameExpr(dependency), false, false);
+
+                if (dependency.startsWith("java.lang.")) {
+                    // java.lang. package is imported anyway
+                }
+                else if (imports.contains(imp)) {
+                    // Avoid import duplicating
+                }
+                else {
+                    unit.getImports().add(new ImportDeclaration(ASTHelper.createNameExpr(dependency), false, false));
+                }
             }
             else {
                 Optional<Type> depType = context.getByFqcn(dependency);

@@ -1,5 +1,3 @@
-import java.lang.System;
-import java.lang.String;
 import java.util.Scanner;
 
 /**
