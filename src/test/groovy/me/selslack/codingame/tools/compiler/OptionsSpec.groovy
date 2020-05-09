@@ -2,7 +2,7 @@ package me.selslack.codingame.tools.compiler
 
 import spock.lang.*
 
-class OptionsTest extends Specification {
+class OptionsSpec extends Specification {
     @Unroll("Correct parameters: #input")
     def "Correct parameters"() {
         given:

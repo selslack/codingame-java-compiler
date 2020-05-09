@@ -1,23 +1,31 @@
 plugins {
-    id 'application'
-    id 'groovy'
-    id 'java'
-    id 'idea'
-    id 'com.github.johnrengelman.shadow' version '1.2.2'
+    id "application"
+    id "groovy"
+    id "java-library"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 
-task wrapper(type: Wrapper) {
-  gradleVersion = '2.9'
-  distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+application {
+    mainClass = "me.selslack.codingame.tools.compiler.Main"
 }
 
-group 'me.selslack.codingame.tools.compiler'
-version '2.1'
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    minimize()
+}
+
+group "me.selslack.codingame.tools.compiler"
+version "2.1"
 
 mainClassName = "me.selslack.codingame.tools.compiler.Main"
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -30,6 +38,6 @@ dependencies {
     compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.6'
     compile group: 'com.github.javaparser', name: 'javaparser-core', version: '2.3.0'
     compile group: 'com.javaslang', name: 'javaslang', version:'2.0.0-RC3'
-    testCompile "org.codehaus.groovy:groovy-all:2.4.1"
-    testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+    testImplementation "org.codehaus.groovy:groovy-all:2.5.9"
+    testCompile "org.spockframework:spock-core:2.0-M2-groovy-2.5"
 }

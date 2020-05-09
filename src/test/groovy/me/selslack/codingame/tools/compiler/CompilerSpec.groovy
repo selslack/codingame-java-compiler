@@ -4,11 +4,11 @@ import com.github.javaparser.JavaParser
 import com.github.javaparser.ast.CompilationUnit
 import spock.lang.*
 
-class CompilerTest extends Specification {
+class CompilerSpec extends Specification {
     @Unroll
     def "compile unsupported feature from #sources"() {
         given:
-        def compiler = new Compiler(mapResourceToFile(sources), new FileWriter(out))
+        def compiler = new Compiler(mapResourceToFile(sources), new OutputStreamWriter(OutputStream.nullOutputStream()))
 
         when:
         compiler.compile()
