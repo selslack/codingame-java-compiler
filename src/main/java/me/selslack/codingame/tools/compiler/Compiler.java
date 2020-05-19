@@ -5,6 +5,7 @@ import io.vavr.collection.List;
 import me.selslack.codingame.tools.compiler.pass.CompilationPass;
 import me.selslack.codingame.tools.compiler.pass.CompilerPass;
 import me.selslack.codingame.tools.compiler.pass.ContextCreatingPass;
+import me.selslack.codingame.tools.compiler.pass.JreTypeReferenceRewritingPass;
 import me.selslack.codingame.tools.compiler.pass.OutputWritingPass;
 import me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass;
 import me.selslack.codingame.tools.compiler.pass.SourceFindingPass;
@@ -37,6 +38,7 @@ public class Compiler {
                     .thenProcessing(new SourceParsingPass())
                     .thenProcessing(new ContextCreatingPass())
                     .thenProcessing(new ReferenceSolvingPass())
+                    .thenProcessing(new JreTypeReferenceRewritingPass())
                     .thenProcessing(new CompilationPass())
                     .thenProcessing(new OutputWritingPass(out))
                     .process(null)

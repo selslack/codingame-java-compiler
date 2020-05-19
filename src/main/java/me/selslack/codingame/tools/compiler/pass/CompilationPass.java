@@ -1,90 +1,65 @@
 package me.selslack.codingame.tools.compiler.pass;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.DataKey;
-import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.github.javaparser.resolution.types.ResolvedType;
-import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
-import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
-import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
-import io.vavr.control.Option;
 
 import me.selslack.codingame.tools.compiler.CompilationContext;
 
-import java.util.function.Function;
-
-import static me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass.TYPE_REF;
+import static me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass.METHOD_REF;
+import static me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass.VALUE_REF;
 
 public class CompilationPass implements CompilerPass<CompilationContext, CompilationUnit> {
-    public static final DataKey<SymbolReference<?>> SYMBOL_REF = new DataKey<>() { };
-    public static final DataKey<String> TYPE = new DataKey<>() { };
-
     @Override
-    public CompilationUnit process(CompilationContext input) throws Exception {
+    public CompilationUnit process(CompilationContext input) {
         CompilationUnit result = new CompilationUnit();
-        JavaParserFacade facade = input.getTypeSolver().getFacade();
 
-        for (Node node : dependencies(input.getPlayer().getTypeDeclaration(), facade)) {
-            if (node instanceof ImportDeclaration) {
-                result.addImport((ImportDeclaration) node);
-            }
-            else if (node instanceof TypeDeclaration) {
-                result.addType((TypeDeclaration<?>) node);
-            }
+        for (TypeDeclaration<?> node : dependencies(input.getPlayer().getTypeDeclaration(), input)) {
+            result.addType(node);
         }
 
         return result;
     }
 
-    static List<Node> dependencies(TypeDeclaration<?> original, JavaParserFacade facade) {
-        var copy = original.clone();
-        var result = List.<Node>empty();
+    static List<TypeDeclaration<?>> dependencies(TypeDeclaration<?> original, CompilationContext context) {
+        TypeDeclaration<?> copy = original.clone();
+        List<TypeDeclaration<?>> result = List.of(copy);
 
-        for (Node t : Stream.ofAll(copy.stream(Node.TreeTraversal.POSTORDER))) {
-            if (t.containsData(TYPE_REF)) {
-                ResolvedType typeRef = t.getData(TYPE_REF);
+        for (Node node : Stream.ofAll(original.stream())) {
+            if (node.containsData(VALUE_REF)) {
+                var reference = node.getData(VALUE_REF);
+                var refType = reference.getType();
 
-                if (typeRef instanceof ResolvedReferenceType) {
-                    result = result.append(
-                        new ImportDeclaration(
-                            ((ResolvedReferenceType) typeRef).getQualifiedName(),
-                            false,
-                            false
-                        )
+                if (refType instanceof ResolvedReferenceType) {
+                    var type = context.getTypes().get(
+                        ((ResolvedReferenceType) refType).getQualifiedName()
                     );
+
+                    if (type.isDefined()) {
+                        result = result.appendAll(dependencies(type.get().getTypeDeclaration(), context));
+                    }
+                }
+            }
+            else if (node.containsData(METHOD_REF)) {
+                var reference = node.getData(METHOD_REF);
+                var type = context.getTypes().get(reference.declaringType().getQualifiedName());
+
+                if (type.isDefined()) {
+                    result = result.appendAll(dependencies(type.get().getTypeDeclaration(), context));
                 }
             }
         }
 
-        copy.removeModifier(
+        result.forEach(t -> t.removeModifier(
             Modifier.Keyword.PUBLIC,
             Modifier.Keyword.PROTECTED,
             Modifier.Keyword.PRIVATE
-        );
+        ));
 
-        return result.prepend(copy);
-    }
-
-    static <N extends Node> Option<String> solve(N original, N copy, Function<N, ResolvedType> mapper) {
-        var resolved = mapper.apply(original);
-
-        if (resolved instanceof ResolvedReferenceType) {
-            var fqn = ((ResolvedReferenceType) resolved).getQualifiedName();
-
-            copy.setData(TYPE, fqn);
-
-            return Option.of(fqn);
-        }
-
-        return Option.none();
+        return result;
     }
 }

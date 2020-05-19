@@ -4,7 +4,7 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 
@@ -17,7 +17,13 @@ public class TypeSolver implements com.github.javaparser.symbolsolver.model.reso
 
     public TypeSolver(CompilationContext context) {
         this.context = context;
-        this.jre = new ReflectionTypeSolver(true);
+
+        this.jre = new ClassLoaderTypeSolver(TypeSolver.class.getClassLoader()) {
+            @Override
+            protected boolean filterName(String name) {
+                return name.startsWith("java.");
+            }
+        };
     }
 
     public JavaParserFacade getFacade() {

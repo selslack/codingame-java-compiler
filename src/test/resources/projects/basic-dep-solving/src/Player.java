@@ -5,9 +5,6 @@ import me.selslack.codingame.basic.pkg.Enum;
 
 import java.util.Scanner;
 
-/**
- * @solution
- */
 public class Player {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
@@ -27,6 +24,6 @@ public class Player {
 
         System.out.println(Dep.isGood());
         System.out.println(Enum.A);
-        java.lang.System.out.println(Enum.NestedEnum.C);
+        System.out.println(Enum.NestedEnum.C);
     }
 }

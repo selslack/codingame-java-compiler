@@ -1,11 +1,6 @@
-import java.util.Scanner;
-
-/**
- * @solution
- */
 class Player {
     public static void main(String args[]) {
-        Scanner in = new Scanner(System.in);
+        java.util.Scanner in = new java.util.Scanner(System.in);
         int N = in.nextInt();
         int Q = in.nextInt();
 

@@ -1,11 +1,6 @@
-import java.util.Scanner;
-
-/**
- * @solution
- */
 class Player {
     public static void main(String args[]) {
-        Scanner in = new Scanner(System.in);
+        java.util.Scanner in = new java.util.Scanner(System.in);
         int N = in.nextInt();
         int Q = in.nextInt();
 
@@ -26,11 +21,6 @@ class Player {
     }
 }
 
-enum Enum {
-    A,
-    B
-}
-
 class Dep {
     public static boolean isGood() {
         return Utils.isGood();
@@ -40,5 +30,14 @@ class Dep {
 class Utils {
     public static boolean isGood() {
         return true;
+    }
+}
+
+enum Enum {
+    A,
+    B;
+
+    public enum NestedEnum {
+        C;
     }
 }

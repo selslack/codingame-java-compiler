@@ -9,7 +9,7 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
-import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 
 import me.selslack.codingame.tools.compiler.CompilationContext;
@@ -17,7 +17,7 @@ import me.selslack.codingame.tools.compiler.CompilationContext;
 public class ReferenceSolvingPass implements CompilerPass<CompilationContext, CompilationContext> {
     public static final DataKey<ResolvedValueDeclaration> VALUE_REF = new DataKey<>() { };
     public static final DataKey<ResolvedMethodDeclaration> METHOD_REF = new DataKey<>() { };
-    public static final DataKey<ResolvedType> TYPE_REF = new DataKey<>() { };
+    public static final DataKey<ResolvedReferenceType> TYPE_REF = new DataKey<>() { };
 
     @Override
     public CompilationContext process(CompilationContext input) {
@@ -63,7 +63,11 @@ public class ReferenceSolvingPass implements CompilerPass<CompilationContext, Co
             }
 
             for (com.github.javaparser.ast.type.Type expr : declaration.findAll(com.github.javaparser.ast.type.Type.class)) {
-                expr.setData(TYPE_REF, facade.convertToUsage(expr));
+                var solved = facade.convertToUsage(expr);
+
+                if (solved instanceof ResolvedReferenceType) {
+                    expr.setData(TYPE_REF, (ResolvedReferenceType) solved);
+                }
             }
         }
 

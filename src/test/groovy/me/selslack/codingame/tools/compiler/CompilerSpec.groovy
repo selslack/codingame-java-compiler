@@ -6,6 +6,7 @@ import spock.lang.*
 
 class CompilerSpec extends Specification {
     @Unroll
+    @Ignore
     def "compile unsupported feature from #sources"() {
         given:
         def compiler = new Compiler(mapResourceToFile(sources), new OutputStreamWriter(OutputStream.nullOutputStream()))

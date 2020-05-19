@@ -2,9 +2,6 @@ package me.selslack.codingame.basic;
 
 import java.util.Scanner;
 
-/**
- * @solution
- */
 public class Player {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
