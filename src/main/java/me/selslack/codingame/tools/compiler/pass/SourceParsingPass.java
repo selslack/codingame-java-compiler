@@ -1,18 +1,14 @@
 package me.selslack.codingame.tools.compiler.pass;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseException;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.TypeDeclaration;
-import javaslang.collection.HashSet;
-import javaslang.collection.List;
-import javaslang.collection.Set;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.StaticJavaParser;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.List;
+import io.vavr.collection.Set;
+
 import me.selslack.codingame.tools.compiler.Type;
 
 import java.io.File;
-import java.util.Optional;
 
 public class SourceParsingPass implements CompilerPass<List<File>, Set<Type>> {
     @Override
@@ -21,15 +17,11 @@ public class SourceParsingPass implements CompilerPass<List<File>, Set<Type>> {
 
         for (File source : input) {
             try {
-                CompilationUnit unit = JavaParser.parse(source);
-                PackageDeclaration pkg = unit.getPackage();
-                List<ImportDeclaration> imports = List.ofAll(unit.getImports());
-
-                for (TypeDeclaration type : unit.getTypes()) {
-                    context = context.add(new Type(Optional.ofNullable(pkg), imports, type, source.getAbsolutePath()));
-                }
-            }
-            catch (ParseException e) {
+                context = context.addAll(
+                    List.ofAll(StaticJavaParser.parse(source).getTypes())
+                        .map(t -> new Type(t))
+                );
+            } catch (ParseProblemException e) {
                 throw new RuntimeException(String.format("Can not parse %s", source.getAbsolutePath()), e);
             }
         }

@@ -2,10 +2,7 @@ package me.selslack.codingame.basic;
 
 import java.util.Scanner;
 
-/**
- * @solution
- */
-public class Solution {
+public class Player {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
         int N = in.nextInt();

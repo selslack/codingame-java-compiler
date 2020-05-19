@@ -1,6 +1,6 @@
 package me.selslack.codingame.tools.compiler;
 
-import javaslang.collection.List;
+import io.vavr.collection.List;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;

@@ -3,7 +3,7 @@ import java.util.Scanner;
 /**
  * @solution
  */
-class Solution {
+class Player {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
         int N = in.nextInt();

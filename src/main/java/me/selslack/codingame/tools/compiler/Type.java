@@ -1,161 +1,57 @@
 package me.selslack.codingame.tools.compiler;
 
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.comments.Comment;
-import javaslang.collection.List;
+import com.github.javaparser.ast.body.TypeDeclaration;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class Type {
-    private final Optional<PackageDeclaration> pkg;
-    private final List<ImportDeclaration> imports;
-    private final TypeDeclaration body;
-    private final String unitId;
-    private final Optional<Type> parent;
+    private final TypeDeclaration<?> typeDeclaration;
 
-    public Type(Optional<PackageDeclaration> pkg, List<ImportDeclaration> imports, TypeDeclaration body, String unitId) {
-        this.pkg = pkg;
-        this.imports = imports;
-        this.body = body;
-        this.unitId = unitId;
-        this.parent = Optional.empty();
+    public Type(TypeDeclaration<?> typeDeclaration) {
+        this.typeDeclaration = typeDeclaration;
     }
 
-    public Type(Optional<PackageDeclaration> pkg, java.util.List<ImportDeclaration> imports, TypeDeclaration body, String unitId) {
-        this(pkg, List.ofAll(imports), body, unitId);
+    public TypeDeclaration<?> getTypeDeclaration() {
+        return typeDeclaration;
     }
 
-    public Optional<PackageDeclaration> getPackage() {
-        if (pkg.isPresent()) {
-            return Optional.of((PackageDeclaration) pkg.get().accept(new CloneVisitor(), null));
+    public String getTypeFqn() {
+        return typeDeclaration.getFullyQualifiedName().orElseThrow();
+    }
+
+    public boolean isPlayerClass() {
+        try {
+            var clazz = typeDeclaration.asClassOrInterfaceDeclaration();
+
+            return !clazz.isInterface()
+                && !clazz.isInnerClass()
+                && !clazz.isAbstract()
+                && clazz.getNameAsString().equals("Player")
+                && clazz.getMethodsBySignature("main", "String[]").size() > 0;
         }
-        else {
-            return pkg;
-        }
-    }
-
-    public List<ImportDeclaration> getImports() {
-        return imports.map(i -> (ImportDeclaration) i.accept(new CloneVisitor(), null));
-    }
-
-    public TypeDeclaration getBody() {
-        return (TypeDeclaration) body.accept(new CloneVisitor(), null);
-    }
-
-    public String getUnitId() {
-        return unitId;
-    }
-
-    public boolean isAbstract() {
-        return ModifierSet.isAbstract(body.getModifiers());
-    }
-
-    public boolean isPublic() {
-        return ModifierSet.isPublic(body.getModifiers());
-    }
-
-    public boolean isProtected() {
-        return ModifierSet.isProtected(body.getModifiers());
-    }
-
-    public boolean isPrivate() {
-        return ModifierSet.isPrivate(body.getModifiers());
-    }
-
-    public boolean hasPackageLevelAccess() {
-        return ModifierSet.hasPackageLevelAccess(body.getModifiers());
-    }
-
-    public boolean isAnnotation() {
-        return body instanceof AnnotationDeclaration;
-    }
-
-    public boolean isEnum() {
-        return body instanceof EnumDeclaration;
-    }
-
-    public boolean isInterface() {
-        return body instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration) body).isInterface();
-    }
-
-    public boolean isClass() {
-        return !isAnnotation() && !isEnum() && !isInterface();
-    }
-
-    public boolean isSolution() {
-        Comment comment = body.getComment();
-
-        if (comment == null) {
+        catch (IllegalStateException e) {
             return false;
         }
-        else {
-            return isPublic() && !isAbstract() && comment.getContent().contains("@solution");
-        }
-    }
-
-    public String getPackageName() {
-        return pkg.map(v -> v.getName().toStringWithoutComments()).orElse("");
-    }
-
-    public String getName() {
-        return body.getName();
-    }
-
-    public String getFullName() {
-        List<String> result = List.empty();
-        Node node = body;
-
-        while (node != null) {
-            if (node instanceof TypeDeclaration) {
-                result = result.prepend(((TypeDeclaration) node).getName());
-            }
-
-            node = node.getParentNode();
-        }
-
-        if (pkg.isPresent()) {
-            result = result.prepend(pkg.get().getName().toStringWithoutComments());
-        }
-
-        return result.mkString(".");
-    }
-
-    public List<Type> getInnerTypes() {
-        List<Type> result = List.empty();
-
-        for (BodyDeclaration declaration : body.getMembers()) {
-            if (declaration instanceof ClassOrInterfaceDeclaration || declaration instanceof EnumDeclaration) {
-                result = result.prepend(new Type(pkg, imports, (TypeDeclaration) declaration, unitId));
-            }
-        }
-
-        return result;
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (this == other) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
 
-        if (null == other || this.getClass() != other.getClass()) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        Type type = (Type) other;
+        Type type = (Type) o;
 
-        return
-            Objects.equals(this.pkg, type.pkg) &&
-            Objects.equals(this.imports, type.imports) &&
-            Objects.equals(this.body, type.body);
+        return typeDeclaration.equals(type.typeDeclaration)
+            && typeDeclaration.getFullyQualifiedName().equals(type.typeDeclaration.getFullyQualifiedName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pkg, imports, body);
+        return Objects.hash(typeDeclaration);
     }
 }

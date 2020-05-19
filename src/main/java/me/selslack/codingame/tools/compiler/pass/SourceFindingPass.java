@@ -1,6 +1,6 @@
 package me.selslack.codingame.tools.compiler.pass;
 
-import javaslang.collection.List;
+import io.vavr.collection.List;
 
 import java.io.File;
 import java.nio.file.Files;

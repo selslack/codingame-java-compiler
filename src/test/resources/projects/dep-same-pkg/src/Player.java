@@ -1,14 +1,11 @@
 package me.selslack.codingame.basic;
 
-import me.selslack.codingame.basic.pkg.Dep;
-import me.selslack.codingame.basic.pkg.Enum;
-
 import java.util.Scanner;
 
 /**
  * @solution
  */
-public class Solution {
+public class Player {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
         int N = in.nextInt();
@@ -25,7 +22,6 @@ public class Solution {
             String FNAME = in.nextLine();
         }
 
-        System.out.println(Dep.isGood());
-        System.out.println(Enum.A);
+        System.out.println(Utils.isGood());
     }
 }

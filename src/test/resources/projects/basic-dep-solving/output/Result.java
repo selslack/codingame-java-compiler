@@ -3,7 +3,7 @@ import java.util.Scanner;
 /**
  * @solution
  */
-class Solution {
+class Player {
     public static void main(String args[]) {
         Scanner in = new Scanner(System.in);
         int N = in.nextInt();
@@ -22,6 +22,7 @@ class Solution {
 
         System.out.println(Dep.isGood());
         System.out.println(Enum.A);
+        System.out.println(Enum.NestedEnum.C);
     }
 }
 
