@@ -19,11 +19,11 @@ class CompilerSpec extends Specification {
 
         where:
         sources                                   | out
-        ["projects/unsupported-static-import"]    | "/dev/null"
-//        ["projects/unsupported-asterisk-import"]  | "/dev/null"
-//        ["projects/unsupported-inner-class"]      | "/dev/null"
-//        ["projects/unsupported-local-class"]      | "/dev/null"
-//        ["projects/unsupported-equal-class-name"] | "/dev/null"
+
+        ["projects/unsupported-asterisk-import"]  | "/dev/null"
+        ["projects/unsupported-inner-class"]      | "/dev/null"
+        ["projects/unsupported-local-class"]      | "/dev/null"
+        ["projects/unsupported-equal-class-name"] | "/dev/null"
     }
 
     @Unroll
@@ -46,6 +46,7 @@ class CompilerSpec extends Specification {
         ["projects/basic/src"]             | "projects/basic/output/Result.java"
         ["projects/basic-dep-solving/src"] | "projects/basic-dep-solving/output/Result.java"
         ["projects/dep-same-pkg/src"]      | "projects/dep-same-pkg/output/Result.java"
+        ["projects/static-import/src"]     | "projects/static-import/out/Result.java"
     }
 
     def mapResourceToFile(String resource) {

@@ -10,6 +10,7 @@ import me.selslack.codingame.tools.compiler.pass.OutputWritingPass;
 import me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass;
 import me.selslack.codingame.tools.compiler.pass.SourceFindingPass;
 import me.selslack.codingame.tools.compiler.pass.SourceParsingPass;
+import me.selslack.codingame.tools.compiler.pass.StaticImportReferenceRewritingPass;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,6 +40,7 @@ public class Compiler {
                     .thenProcessing(new ContextCreatingPass())
                     .thenProcessing(new ReferenceSolvingPass())
                     .thenProcessing(new JreTypeReferenceRewritingPass())
+                    .thenProcessing(new StaticImportReferenceRewritingPass())
                     .thenProcessing(new CompilationPass())
                     .thenProcessing(new OutputWritingPass(out))
                     .process(null)
