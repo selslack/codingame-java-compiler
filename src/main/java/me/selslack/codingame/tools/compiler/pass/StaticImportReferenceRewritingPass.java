@@ -2,70 +2,79 @@ package me.selslack.codingame.tools.compiler.pass;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
-import io.vavr.collection.Stream;
+import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 
-import me.selslack.codingame.tools.compiler.CompilationContext;
+public class StaticImportReferenceRewritingPass extends AbstractRewritingPass {
+    public StaticImportReferenceRewritingPass() {
+        super(
+            StaticImportReferenceRewritingPass::rewriteStaticFieldAccess_NameExpr,
+            StaticImportReferenceRewritingPass::rewriteStaticMethodCall_MethodCallExpr
+        );
+    }
 
-import static me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass.METHOD_REF;
-import static me.selslack.codingame.tools.compiler.pass.ReferenceSolvingPass.VALUE_REF;
-
-public class StaticImportReferenceRewritingPass implements CompilerPass<CompilationContext, CompilationContext> {
-    @Override
-    public CompilationContext process(CompilationContext input) {
-        for (TypeDeclaration<?> declaration : input.getTypes()
-                                                   .valuesIterator()
-                                                   .map(t -> t.getTypeDeclaration())) {
-            for (Node node : Stream.ofAll(declaration.stream())) {
-                if (node.containsData(VALUE_REF)) {
-                    var reference = node.getData(VALUE_REF);
-
-                    if (reference instanceof ResolvedFieldDeclaration) {
-                        if (((ResolvedFieldDeclaration) reference).isStatic()) {
-                            if (node instanceof NameExpr) {
-                                var expr = String.format(
-                                    "%s.%s",
-                                    ((ResolvedFieldDeclaration) reference).declaringType().getQualifiedName(),
-                                    ((NameExpr) node).getNameAsString()
-                                );
-
-                                if (expr.startsWith("java.")) {
-                                    if (expr.startsWith("java.lang.")) {
-                                        expr = expr.substring(10);
-                                    }
-
-                                    node.replace(
-                                        StaticJavaParser.parseExpression(expr)
-                                    );
-                                }
-                            }
-                        }
-                    }
-                } else if (node.containsData(METHOD_REF)) {
-                    var reference = node.getData(METHOD_REF);
-
-                    if (reference.isStatic()) {
-                        if (node instanceof MethodCallExpr) {
-                            var expr = reference.declaringType().getQualifiedName();
-
-                            if (expr.startsWith("java.")) {
-                                if (expr.startsWith("java.lang.")) {
-                                    expr = expr.substring(10);
-                                }
-
-                                ((MethodCallExpr) node).setScope(
-                                    StaticJavaParser.parseExpression(expr)
-                                );
-                            }
-                        }
-                    }
-                }
-            }
+    static Node rewriteStaticFieldAccess_NameExpr(Node node, JavaParserFacade facade) {
+        if (!(node instanceof NameExpr)) {
+            return node;
         }
 
-        return input;
+        var reference = facade.solve((NameExpr) node);
+
+        if (!reference.isSolved() || !reference.getCorrespondingDeclaration().isField()) {
+            return node;
+        }
+
+        if (!reference.getCorrespondingDeclaration().asField().isStatic()) {
+            return node;
+        }
+
+        var fqn = String.format(
+            "%s.%s",
+            reference.getCorrespondingDeclaration().asField().declaringType().getQualifiedName(),
+            ((NameExpr) node).getName()
+        );
+
+        // Rewrite only JRE imports until type renaming is implemented
+        if (!fqn.startsWith("java.")) {
+            return node;
+        }
+
+        if (fqn.startsWith("java.lang.")) {
+            fqn = fqn.substring(10);
+        }
+
+        return StaticJavaParser.parseExpression(fqn);
+    }
+
+    static Node rewriteStaticMethodCall_MethodCallExpr(Node node, JavaParserFacade facade) {
+        if (!(node instanceof MethodCallExpr)) {
+            return node;
+        }
+
+        var reference = facade.solve((MethodCallExpr) node);
+
+        if (!reference.isSolved() || !reference.getCorrespondingDeclaration().isStatic()) {
+            return node;
+        }
+
+        var fqn = reference.getCorrespondingDeclaration().declaringType().getQualifiedName();
+
+        // Rewrite only JRE imports until type renaming is implemented
+        if (!fqn.startsWith("java.")) {
+            return node;
+        }
+
+        if (fqn.startsWith("java.lang.")) {
+            fqn = fqn.substring(10);
+        }
+
+        var replacement = ((MethodCallExpr) node).clone();
+
+        replacement.setScope(
+            StaticJavaParser.parseExpression(fqn)
+        );
+
+        return replacement;
     }
 }

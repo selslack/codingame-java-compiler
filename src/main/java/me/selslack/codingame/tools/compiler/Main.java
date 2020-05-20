@@ -19,7 +19,7 @@ public class Main {
 
             System.exit(1);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             e.printStackTrace(System.err);
 
             System.exit(42);

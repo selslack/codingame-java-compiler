@@ -12,7 +12,7 @@ public class OutputWritingPass implements CompilerPass<CompilationUnit, Void> {
     }
 
     @Override
-    public Void process(CompilationUnit input) throws Exception {
+    public Void process(CompilationUnit input) throws Throwable {
         writer.write(input.toString());
         writer.flush();
 

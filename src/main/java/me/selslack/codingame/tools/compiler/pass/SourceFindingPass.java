@@ -13,7 +13,7 @@ public class SourceFindingPass implements CompilerPass<Void, List<File>> {
     }
 
     @Override
-    public List<File> process(Void input) throws Exception {
+    public List<File> process(Void input) throws Throwable {
         List<File> result = List.empty();
 
         for (File source : sources) {

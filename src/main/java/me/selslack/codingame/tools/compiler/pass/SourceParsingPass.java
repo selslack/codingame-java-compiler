@@ -12,7 +12,7 @@ import java.io.File;
 
 public class SourceParsingPass implements CompilerPass<List<File>, Set<Type>> {
     @Override
-    public Set<Type> process(List<File> input) throws Exception {
+    public Set<Type> process(List<File> input) throws Throwable {
         Set<Type> context = HashSet.empty();
 
         for (File source : input) {
