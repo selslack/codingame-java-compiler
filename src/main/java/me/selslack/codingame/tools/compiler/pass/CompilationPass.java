@@ -35,7 +35,7 @@ public class CompilationPass implements CompilerPass<CompilationContext, Compila
                 var refType = reference.getType();
 
                 if (refType instanceof ResolvedReferenceType) {
-                    var type = context.getTypes().get(
+                    var type = context.getType(
                         ((ResolvedReferenceType) refType).getQualifiedName()
                     );
 

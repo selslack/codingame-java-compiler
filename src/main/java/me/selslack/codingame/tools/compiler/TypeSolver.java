@@ -58,7 +58,7 @@ public class TypeSolver implements com.github.javaparser.symbolsolver.model.reso
             String outer = parts.take(l).mkString(".");
             String inner = parts.takeRight(r + 1).mkString(".");
 
-            Option<Type> type = context.getTypes().get(outer);
+            Option<Type> type = context.getType(outer);
 
             if (type.isEmpty()) {
                 continue;
