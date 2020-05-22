@@ -8,7 +8,7 @@ import me.selslack.codingame.tools.compiler.Type;
 
 public class ContextCreatingPass implements CompilerPass<Set<Type>, CompilationContext> {
     @Override
-    public CompilationContext process(final Set<Type> input) throws Exception {
+    public CompilationContext process(final Set<Type> input) throws Throwable {
         var players = input.filter(t -> t.isPlayerClass());
 
         if (players.isEmpty()) {

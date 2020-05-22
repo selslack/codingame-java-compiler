@@ -34,7 +34,7 @@ public class Compiler {
         this(options.sources, new FileWriter(options.out));
     }
 
-    public void compile() throws Exception {
+    public void compile() throws Throwable {
         CompilerPass.processing(new SourceFindingPass(sources))
                     .thenProcessing(new SourceParsingPass())
                     .thenProcessing(new ContextCreatingPass())
